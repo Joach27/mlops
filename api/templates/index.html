@@ -1,0 +1,431 @@
+<!-- api/templates/index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classifieur Iris - DevOps/MLOps</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: white;
+        }
+        
+        .iris-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .feature-input {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .feature-input:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 0.2rem rgba(75, 108, 183, 0.25);
+        }
+        
+        .result-card {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+        }
+        
+        .prediction-badge {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 50px;
+        }
+        
+        .setosa-badge {
+            background-color: #4CAF50;
+        }
+        
+        .versicolor-badge {
+            background-color: #2196F3;
+        }
+        
+        .virginica-badge {
+            background-color: #9C27B0;
+        }
+        
+        .probability-bar {
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .dataset-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .step-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4b6cb7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- En-tête -->
+        <div class="card header-gradient mb-5">
+            <div class="card-body text-center">
+                <h1 class="display-4">
+                    <i class="fas fa-robot"></i> Classifieur de Fleurs Iris
+                </h1>
+                <p class="lead">Démonstration d'un pipeline DevOps/MLOps complet</p>
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="step-box">
+                            <i class="fas fa-code text-primary"></i>
+                            <h6>API Flask</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="step-box">
+                            <i class="fas fa-brain text-success"></i>
+                            <h6>Machine Learning</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="step-box">
+                            <i class="fas fa-docker text-info"></i>
+                            <h6>Conteneur Docker</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="step-box">
+                            <i class="fas fa-cloud text-warning"></i>
+                            <h6>AWS EC2</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Formulaire de prédiction -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-sliders-h"></i> Paramètres de la fleur
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="prediction-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Longueur du sépale (cm)</label>
+                                    <input type="number" step="0.1" class="form-control feature-input" 
+                                           id="sepal_length" value="5.1" min="4.0" max="8.0">
+                                    <small class="text-muted">Entre 4.0 et 8.0 cm</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Largeur du sépale (cm)</label>
+                                    <input type="number" step="0.1" class="form-control feature-input" 
+                                           id="sepal_width" value="3.5" min="2.0" max="4.5">
+                                    <small class="text-muted">Entre 2.0 et 4.5 cm</small>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Longueur du pétale (cm)</label>
+                                    <input type="number" step="0.1" class="form-control feature-input" 
+                                           id="petal_length" value="1.4" min="1.0" max="7.0">
+                                    <small class="text-muted">Entre 1.0 et 7.0 cm</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Largeur du pétale (cm)</label>
+                                    <input type="number" step="0.1" class="form-control feature-input" 
+                                           id="petal_width" value="0.2" min="0.1" max="2.5">
+                                    <small class="text-muted">Entre 0.1 et 2.5 cm</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-success btn-lg w-100" id="predict-btn">
+                                    <i class="fas fa-bolt"></i> Faire une prédiction
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Exemples rapides -->
+                        <div class="mt-4">
+                            <h6>Exemples rapides :</h6>
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary example-btn" 
+                                        data-example="setosa">Setosa</button>
+                                <button type="button" class="btn btn-outline-info example-btn" 
+                                        data-example="versicolor">Versicolor</button>
+                                <button type="button" class="btn btn-outline-warning example-btn" 
+                                        data-example="virginica">Virginica</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informations sur le modèle -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle"></i> Informations techniques
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="dataset-info">
+                            <h6>Dataset Iris :</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-database"></i> 150 échantillons</li>
+                                <li><i class="fas fa-layer-group"></i> 3 classes</li>
+                                <li><i class="fas fa-ruler"></i> 4 caractéristiques</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="dataset-info">
+                            <h6>Modèle utilisé :</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-project-diagram"></i> Random Forest</li>
+                                <li><i class="fas fa-tachometer-alt"></i> 100 estimateurs</li>
+                                <li><i class="fas fa-bullseye"></i> Précision : ~96%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Résultats -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chart-line"></i> Résultats de la prédiction
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="result-area" class="text-center" style="display: none;">
+                            <!-- Résultat dynamique -->
+                            <h4 class="mb-3">Classe prédite :</h4>
+                            <div id="prediction-result" class="mb-4"></div>
+                            
+                            <h5 class="mt-4 mb-3">Probabilités :</h5>
+                            <div id="probabilities"></div>
+                            
+                            <div class="mt-4">
+                                <h5>Caractéristiques saisies :</h5>
+                                <div id="features-display" class="mt-2"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="empty-state" class="text-center py-5">
+                            <i class="fas fa-seedling fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune prédiction pour le moment</h5>
+                            <p class="text-muted">Saisissez les paramètres et cliquez sur "Faire une prédiction"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Architecture du projet -->
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sitemap"></i> Pipeline DevOps/MLOps
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="step-box">
+                            <i class="fas fa-code-branch"></i>
+                            <strong>GitHub</strong> - Versioning du code
+                        </div>
+                        <div class="step-box">
+                            <i class="fas fa-play-circle"></i>
+                            <strong>GitHub Actions</strong> - CI/CD automatisé
+                        </div>
+                        <div class="step-box">
+                            <i class="fas fa-cube"></i>
+                            <strong>Docker</strong> - Conteneurisation
+                        </div>
+                        <div class="step-box">
+                            <i class="fas fa-server"></i>
+                            <strong>AWS EC2</strong> - Déploiement cloud
+                        </div>
+                        <div class="step-box">
+                            <i class="fas fa-network-wired"></i>
+                            <strong>API Flask</strong> - Interface REST
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pied de page -->
+        <div class="footer text-center mt-5">
+            <p class="mb-2">Projet tutoré DevOps/MLOps - Pipeline complet pour un modèle de Machine Learning</p>
+            <p class="text-muted small">
+                <i class="fas fa-cloud"></i> Déployé sur AWS EC2 |
+                <i class="fas fa-code"></i> API Flask |
+                <i class="fas fa-brain"></i> Scikit-learn |
+                <i class="fas fa-docker"></i> Docker
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Exemples rapides
+            $('.example-btn').click(function() {
+                const example = $(this).data('example');
+                const examples = {
+                    'setosa': [5.1, 3.5, 1.4, 0.2],
+                    'versicolor': [6.0, 2.7, 5.1, 1.6],
+                    'virginica': [6.7, 3.0, 5.2, 2.3]
+                };
+                
+                $('#sepal_length').val(examples[example][0]);
+                $('#sepal_width').val(examples[example][1]);
+                $('#petal_length').val(examples[example][2]);
+                $('#petal_width').val(examples[example][3]);
+            });
+            
+            // Soumission du formulaire
+            $('#prediction-form').submit(function(e) {
+                e.preventDefault();
+                
+                // Récupération des valeurs
+                const features = {
+                    sepal_length: parseFloat($('#sepal_length').val()),
+                    sepal_width: parseFloat($('#sepal_width').val()),
+                    petal_length: parseFloat($('#petal_length').val()),
+                    petal_width: parseFloat($('#petal_width').val())
+                };
+                
+                // Validation
+                if (Object.values(features).some(val => isNaN(val))) {
+                    alert('Veuillez saisir des valeurs numériques valides');
+                    return;
+                }
+                
+                // Désactivation du bouton pendant la requête
+                const predictBtn = $('#predict-btn');
+                const originalText = predictBtn.html();
+                predictBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Traitement...');
+                
+                // Envoi de la requête à l'API
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(features),
+                    success: function(response) {
+                        // Affichage des résultats
+                        displayResults(response, features);
+                        
+                        // Réactivation du bouton
+                        predictBtn.prop('disabled', false).html(originalText);
+                    },
+                    error: function(xhr) {
+                        alert('Erreur lors de la prédiction: ' + 
+                              (xhr.responseJSON?.error || 'Erreur serveur'));
+                        predictBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+            
+            function displayResults(result, features) {
+                // Affichage de la zone de résultat
+                $('#empty-state').hide();
+                $('#result-area').show();
+                
+                // Badge de prédiction
+                const classColors = {
+                    'setosa': 'setosa-badge',
+                    'versicolor': 'versicolor-badge',
+                    'virginica': 'virginica-badge'
+                };
+                
+                $('#prediction-result').html(`
+                    <span class="prediction-badge ${classColors[result.prediction]}">
+                        ${result.prediction.toUpperCase()} (Classe ${result.class_index})
+                    </span>
+                `);
+                
+                // Affichage des probabilités
+                let probabilitiesHtml = '';
+                for (const [className, prob] of Object.entries(result.probabilities)) {
+                    const percentage = (prob * 100).toFixed(1);
+                    probabilitiesHtml += `
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>${className}</span>
+                                <span>${percentage}%</span>
+                            </div>
+                            <div class="progress probability-bar">
+                                <div class="progress-bar ${classColors[className]}" 
+                                     role="progressbar" 
+                                     style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                $('#probabilities').html(probabilitiesHtml);
+                
+                // Affichage des caractéristiques
+                $('#features-display').html(`
+                    <div class="row">
+                        <div class="col-6">Longueur sépale: <strong>${features.sepal_length} cm</strong></div>
+                        <div class="col-6">Largeur sépale: <strong>${features.sepal_width} cm</strong></div>
+                        <div class="col-6">Longueur pétale: <strong>${features.petal_length} cm</strong></div>
+                        <div class="col-6">Largeur pétale: <strong>${features.petal_width} cm</strong></div>
+                    </div>
+                `);
+            }
+            
+            // Initialisation avec un exemple
+            $('.example-btn[data-example="setosa"]').click();
+        });
+    </script>
+</body>
+</html>
