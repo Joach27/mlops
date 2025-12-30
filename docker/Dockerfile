@@ -15,6 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copie de l'application
 COPY api/ ./api/
 COPY model/ ./model/
+COPY templates/ ./templates/
+
 
 # Exposition du port
 EXPOSE 5000

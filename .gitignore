@@ -1,2 +1,10 @@
 # Venv
 menv
+
+terraform.tfstate
+*.tfvars
+.terraform/
+mlops-key.pem
+override.tf
+.terraform.lock.hcl
+terraform.tfstate.backup
